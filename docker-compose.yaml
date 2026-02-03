@@ -17,7 +17,7 @@ services:
     depends_on:
       - etcd
     command: ./etcdkeeper -h etcd -p 2379
-
+  git remote add origin https://github.com/Hikrys/Go_skeleton.git
   jaeger:
     image: jaegertracing/all-in-one:latest
     environment:
