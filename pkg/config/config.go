@@ -6,7 +6,6 @@ import (
 )
 
 // ServerConfig 对应 yaml 里的 server 部分
-// mapstructure 是 viper 用来把 yaml 字段映射到结构体的标签
 type ServerConfig struct {
 	Name string `mapstructure:"name"`
 	Port int    `mapstructure:"port"`
@@ -22,8 +21,6 @@ type LogConfig struct {
 	MaxBackups int    `mapstructure:"max_backups"`
 }
 
-// Config 这是一个总的结构体，把上面的小结构体都包进来
-// 这样我们在代码里就能用 config.Server.Port 这样点出来，很方便
 type Config struct {
 	Server ServerConfig `mapstructure:"server"`
 	Log    LogConfig    `mapstructure:"log"`

@@ -23,12 +23,12 @@ type RpcServer struct {
 }
 
 func NewRpcServer(cfg config.ServerConfig) *RpcServer {
-	// 这里是核心：添加拦截器 (Middleware)
+	// 添加拦截器
 	// 如果你有多个拦截器，可以使用 grpc.ChainUnaryInterceptor 串联起来
 	opts := []grpc.ServerOption{
-		// 1. OTel 注入 (放在 StatsHandler 里)
+		// OTel 注入
 		grpc.StatsHandler(otelgrpc.NewServerHandler()),
-		//5 2.拦截器链
+		// 拦截器链
 		grpc.ChainUnaryInterceptor(
 			// Recovery 拦截器：防止 panic 崩溃
 			recoveryInterceptor,
@@ -42,7 +42,7 @@ func NewRpcServer(cfg config.ServerConfig) *RpcServer {
 
 	return &RpcServer{
 		Server: s,
-		port:   cfg.Port + 1000, // 简单起见，RPC 端口比 HTTP 大 1000，比如 8080 -> 9080
+		port:   cfg.Port + 1000,
 	}
 }
 
@@ -67,9 +67,7 @@ func (s *RpcServer) Stop() {
 	s.Server.GracefulStop()
 }
 
-// --- 拦截器实现细节 (Interceptor) ---
-
-// recoveryInterceptor 就像一道保险丝
+// recoveryInterceptor 保险丝
 func recoveryInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
 	// defer 作为兜底，panic 发生时会触发
 	defer func() {
@@ -79,7 +77,7 @@ func recoveryInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryS
 				zap.Any("error", e),
 				zap.String("stack", string(debug.Stack())),
 			)
-			// 返回给客户端一个明确的错误
+			// 返回给客户端一个错误
 			err = status.Errorf(codes.Internal, "服务内部错误")
 		}
 	}()
@@ -92,8 +90,7 @@ func timeoutInterceptor(timeout time.Duration) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		// 派生出一个带超时的 context
 		ctx, cancel := context.WithTimeout(ctx, timeout)
-		defer cancel() // 记得释放
-
+		defer cancel()
 		// 传进去带超时的 ctx
 		// 如果 handler 处理太慢，ctx.Done() 就会先结束
 		return handler(ctx, req)

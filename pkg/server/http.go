@@ -21,16 +21,15 @@ type RestServer struct {
 	server *http.Server // 标准库的 http.Server
 }
 
-// NewRestServer 像个工厂，根据配置生产一个 Server
+// NewRestServer 根据配置生产一个 Server
 func NewRestServer(cfg config.ServerConfig) *RestServer {
-	// 1. 设置 Gin 的运行模式 (Debug/Release)
+	// 设置 Gin 的运行模式 (Debug/Release)
 	gin.SetMode(cfg.Mode)
 
-	// 2. 创建 Gin 实例
+	// 创建 Gin 实例
 	r := gin.New()
 
 	// 注册中间件
-
 	// 链路追踪 (Trace)
 	r.Use(otelgin.Middleware(cfg.Name))
 
@@ -40,9 +39,9 @@ func NewRestServer(cfg config.ServerConfig) *RestServer {
 	// 日志记录 (Logger)
 	r.Use(ginLogger())
 
-	//  4. 注册基础路由
+	// 注册基础路由
 
-	// D. 监控指标 (Metrics)
+	// 监控指标 (Metrics)
 	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	return &RestServer{

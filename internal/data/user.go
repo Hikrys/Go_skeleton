@@ -7,7 +7,7 @@ import (
 )
 
 type userRepo struct {
-	// 这里以后可以放 db *gorm.DB
+	// 这里可以放 db *gorm.DB
 }
 
 // NewUserRepo 构造函数
